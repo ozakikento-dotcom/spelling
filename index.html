@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Spelling Dragon Battle</title>
+
 <style>
 body{
   font-family: Arial, sans-serif;
@@ -12,70 +13,140 @@ body{
   padding:10px;
 }
 h1{color:#2b6cb0;}
+.level{font-size:22px;margin:5px;}
 .dragon{font-size:80px;}
-.level{font-size:20px;margin:5px;}
+
+.listen-btn{
+  font-size:34px;
+  padding:22px 45px;
+  margin:10px;
+  border-radius:25px;
+  background:#ff9800;
+  color:white;
+  border:none;
+}
+.listen-btn:active{background:#f57c00;}
+
+.hint-btn{
+  font-size:28px;
+  padding:18px 30px;
+  margin:10px;
+  border-radius:22px;
+  background:#9c27b0;
+  color:white;
+  border:none;
+}
+.hint-btn:active{background:#7b1fa2;}
 
 .hp-bar{
-  width:220px;height:18px;
+  width:260px;height:20px;
   background:#ddd;border-radius:10px;
-  margin:5px auto;overflow:hidden;
+  margin:8px auto;overflow:hidden;
 }
 #hpFill{
   height:100%;
-  background:linear-gradient(to right,red,orange);
-  width:100%;transition:.3s;
+  background:linear-gradient(to right,#4caf50,#8bc34a);
+  width:0%;transition:.3s;
 }
 
-.progress{font-size:28px;color:green;min-height:36px;}
-.status{height:26px;font-size:18px;}
+#hint{
+  font-size:34px;
+  height:40px;
+  color:#444;
+}
+
+.progress{
+  font-size:30px;
+  color:green;
+  min-height:36px;
+}
 
 .buttons button{
-  font-size:26px;width:70px;height:70px;
-  margin:6px;border-radius:14px;
-  border:none;background:#63b3ed;color:white;
+  font-size:40px;
+  width:95px;
+  height:95px;
+  margin:8px;
+  border-radius:22px;
+  border:none;
+  background:#4cafef;
+  color:white;
 }
-.buttons button:active{background:#4299e1;}
+.buttons button:active{background:#2196f3;}
 
 #stickerArea{
-  display:flex;flex-wrap:wrap;justify-content:center;
-  gap:8px;margin-top:10px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-top:10px;
 }
 #stickerArea img{
-  width:60px;border-radius:8px;
+  width:60px;
+  border-radius:8px;
   box-shadow:0 2px 4px rgba(0,0,0,.2);
 }
 
-/* モーダル */
+/* 拡大 */
 #modal{
-  display:none;position:fixed;inset:0;
+  display:none;
+  position:fixed;
+  inset:0;
   background:rgba(0,0,0,.7);
-  justify-content:center;align-items:center;
+  justify-content:center;
+  align-items:center;
   z-index:2000;
 }
 #modal img{
-  width:300px;background:white;
-  border-radius:20px;padding:10px;
+  width:300px;
+  background:white;
+  border-radius:20px;
+  padding:10px;
 }
 
-/* コンプリート */
-#complete{
-  display:none;position:fixed;inset:0;
-  background:linear-gradient(135deg,gold,orange);
-  color:white;z-index:3000;
-  padding-top:120px;font-size:30px;
+/* レベルアップ演出 */
+#levelUpEffect{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,0.9);
+  z-index:5000;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+.level-text{
+  font-size:48px;
+  color:#ff9800;
+  font-weight:bold;
+  animation:pop .6s ease-out;
+}
+@keyframes pop{
+  0%{transform:scale(.5);opacity:0;}
+  100%{transform:scale(1);opacity:1;}
+}
+.sparkles{
+  font-size:36px;
+  animation:sparkle 1.2s linear infinite;
+}
+@keyframes sparkle{
+  0%{opacity:0;transform:translateY(10px);}
+  50%{opacity:1;}
+  100%{opacity:0;transform:translateY(-20px);}
 }
 
 /* 親画面 */
 #parentPanel{
-  display:none;position:fixed;inset:0;
-  background:#fff;z-index:4000;
-  padding:20px;overflow-y:auto;
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#fff;
+  z-index:4000;
+  padding:20px;
   text-align:left;
 }
-.good{color:green;}
-.bad{color:red;}
 #parentTrigger{
-  position:fixed;bottom:0;left:0;
+  position:fixed;
+  bottom:0;left:0;
   width:100%;height:40px;
 }
 </style>
@@ -88,81 +159,84 @@ h1{color:#2b6cb0;}
 <div class="dragon">🐲</div>
 
 <div class="hp-bar"><div id="hpFill"></div></div>
-<button onclick="speakWord()">🔊 きく</button>
 
+<button class="listen-btn" onclick="speakWord()">🔊 きく</button>
+<button class="hint-btn" onclick="showHint()">💡 HINT</button>
+
+<div id="hint"></div>
 <div class="progress" id="progress"></div>
 <div class="buttons" id="buttons"></div>
-<div class="status" id="status"></div>
 
-<h3>🎁 あつめたステッカー</h3>
+<h3>🎁 ステッカー</h3>
 <div id="stickerArea"></div>
 
+<!-- 拡大 -->
 <div id="modal" onclick="closeModal()">
   <img id="modalImg">
 </div>
 
-<div id="complete">
-  <h1>🎉 コンプリート！</h1>
-  <p>50まい あつめたよ！！</p>
+<!-- レベルアップ -->
+<div id="levelUpEffect">
+  <div class="level-text">LEVEL UP!! ⭐</div>
+  <div class="sparkles">✨ ⭐ ✨ ⭐ ✨</div>
 </div>
 
+<!-- 親 -->
 <div id="parentTrigger"></div>
-
 <div id="parentPanel">
   <h2>🔧 保護者用</h2>
   <p>レベル：<b id="pLevel"></b></p>
   <p>プレイ回数：<b id="pTotal"></b></p>
-  <h3>📊 得意・不得意</h3>
-  <div id="statsArea"></div>
-  <button onclick="resetAll()">データリセット</button>
+  <button onclick="resetAll()">リセット</button>
   <button onclick="closeParent()">とじる</button>
 </div>
 
 <script>
-/* ========= 単語 ========= */
-let words = [
+/* ===== 単語 ===== */
+let words=[
  "the","said","come","love","find","go","here","there","why",
  "children","climb","busy","people","beautiful","after",
  "could","would","should","who","every"
-].map(w=>({text:w.toUpperCase(),score:0}));
+].map(w=>w.toUpperCase());
 
 let level=1,totalCount=0;
-let currentWord="",index=0;
-let dragonHP=3,maxHP=3;
+let levelWords=[],qIndex=0;
+let currentWord="",charIndex=0;
 let stickers=[];
 
-/* ========= 音声 ========= */
+/* ===== 音 ===== */
 function speakWord(){
-  if(!currentWord) return;
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(currentWord);
   u.lang="en-US";u.rate=0.9;
   speechSynthesis.speak(u);
 }
 
-/* ========= 出題 ========= */
-function pickWord(){
-  const pool=[];
-  words.forEach(w=>{
-    const weight=Math.max(1,4-w.score);
-    for(let i=0;i<weight;i++) pool.push(w);
-  });
-  return pool[Math.floor(Math.random()*pool.length)];
+/* ===== HINT ===== */
+function showHint(){
+  const h=document.getElementById("hint");
+  h.textContent=currentWord;
+  setTimeout(()=>h.textContent="",1000);
 }
 
-function startRound(){
-  const w=pickWord();
-  currentWord=w.text;
-  index=0;
-  maxHP=3+level;
-  dragonHP=maxHP;
-  updateHP();
+/* ===== レベル開始 ===== */
+function startLevel(){
+  levelWords=[...words].sort(()=>Math.random()-0.5).slice(0,10);
+  qIndex=0;
+  startQuestion();
+}
+
+/* ===== 1問 ===== */
+function startQuestion(){
+  currentWord=levelWords[qIndex];
+  charIndex=0;
   document.getElementById("progress").textContent="";
-  document.getElementById("status").textContent="";
+  updateProgress();
   createButtons();
   setTimeout(speakWord,500);
 }
 
+/* ===== ボタン ===== */
 function createButtons(){
   const area=document.getElementById("buttons");
   area.innerHTML="";
@@ -181,54 +255,63 @@ function createButtons(){
 }
 
 function tapLetter(l){
-  if(l===currentWord[index]){
-    index++;
-    document.getElementById("progress").textContent=currentWord.slice(0,index);
-    if(index===currentWord.length){
+  if(l===currentWord[charIndex]){
+    charIndex++;
+    document.getElementById("progress").textContent=
+      currentWord.slice(0,charIndex);
+    if(charIndex===currentWord.length){
       totalCount++;
-      const w=words.find(x=>x.text===currentWord);
-      if(w) w.score=Math.min(3,w.score+1);
-      dragonHP--;
-      updateHP();
-      index=0;
-      document.getElementById("progress").textContent="";
-      if(dragonHP<=0) levelUp();
+      qIndex++;
+      updateProgress();
+      if(qIndex>=10) levelUp();
+      else startQuestion();
     }
-  }else{
-    const w=words.find(x=>x.text===currentWord);
-    if(w) w.score=Math.max(0,w.score-1);
-    document.getElementById("status").textContent="😵 ちがうよ";
   }
   saveGame();
 }
 
-/* ========= HP ========= */
-function updateHP(){
-  document.getElementById("hpFill").style.width=
-    (dragonHP/maxHP*100)+"%";
+/* ===== 進捗 ===== */
+function updateProgress(){
+  document.getElementById("hpFill").style.width=(qIndex/10*100)+"%";
 }
 
-/* ========= レベル ========= */
+/* ===== レベルアップ ===== */
+function playLevelUpSound(){
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const o=ctx.createOscillator();
+  const g=ctx.createGain();
+  o.frequency.setValueAtTime(880,ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(1320,ctx.currentTime+.3);
+  g.gain.setValueAtTime(.3,ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.6);
+  o.connect(g);g.connect(ctx.destination);
+  o.start();o.stop(ctx.currentTime+.6);
+}
+
+function showLevelUpEffect(){
+  const e=document.getElementById("levelUpEffect");
+  e.style.display="flex";
+  playLevelUpSound();
+  setTimeout(()=>e.style.display="none",1500);
+}
+
 function levelUp(){
   level++;
   document.getElementById("level").textContent=level;
+  showLevelUpEffect();
   addSticker(Math.floor(Math.random()*50)+1);
-  setTimeout(startRound,1500);
+  setTimeout(startLevel,1500);
 }
 
-/* ========= ステッカー ========= */
+/* ===== ステッカー ===== */
 function addSticker(n){
   stickers.push(n);
   const img=document.createElement("img");
-  img.src=`stickers/volst (${n}).png`;
+  img.src=`volst (${n}).png`;
   img.onclick=()=>openModal(img.src);
   document.getElementById("stickerArea").appendChild(img);
-  if(stickers.length>=50){
-    document.getElementById("complete").style.display="block";
-  }
   saveGame();
 }
-
 function openModal(src){
   document.getElementById("modalImg").src=src;
   document.getElementById("modal").style.display="flex";
@@ -237,59 +320,40 @@ function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
-/* ========= 保存 ========= */
+/* ===== 保存 ===== */
 function saveGame(){
   localStorage.setItem("saveData",JSON.stringify({
-    level,totalCount,words,stickers
+    level,totalCount,stickers
   }));
 }
-
 function loadGame(){
   const d=JSON.parse(localStorage.getItem("saveData"));
   if(!d) return;
   level=d.level||1;
   totalCount=d.totalCount||0;
-  if(d.words){
-    d.words.forEach(sw=>{
-      const w=words.find(x=>x.text===sw.text);
-      if(w) w.score=sw.score;
-    });
-  }
   stickers=d.stickers||[];
   document.getElementById("level").textContent=level;
   stickers.forEach(n=>{
     const img=document.createElement("img");
-    img.src=`stickers/volst (${n}).png`;
+    img.src=`volst (${n}).png`;
     img.onclick=()=>openModal(img.src);
     document.getElementById("stickerArea").appendChild(img);
   });
 }
 
-/* ========= 親画面 ========= */
+/* ===== 親 ===== */
 let timer;
 document.getElementById("parentTrigger").ontouchstart=()=>{
   timer=setTimeout(openParent,5000);
 };
-document.getElementById("parentTrigger").ontouchend=()=>{
-  clearTimeout(timer);
-};
-
+document.getElementById("parentTrigger").ontouchend=()=>clearTimeout(timer);
 function openParent(){
   document.getElementById("parentPanel").style.display="block";
   document.getElementById("pLevel").textContent=level;
   document.getElementById("pTotal").textContent=totalCount;
-  renderStats();
 }
 function closeParent(){
   document.getElementById("parentPanel").style.display="none";
-}
-function renderStats(){
-  const s=[...words].sort((a,b)=>a.score-b.score);
-  let html="<b>にがて：</b><br>";
-  s.slice(0,5).forEach(w=>html+=`<span class="bad">${w.text}</span> `);
-  html+="<br><br><b>とくい：</b><br>";
-  s.slice(-5).forEach(w=>html+=`<span class="good">${w.text}</span> `);
-  document.getElementById("statsArea").innerHTML=html;
 }
 function resetAll(){
   if(confirm("リセットしますか？")){
@@ -298,9 +362,9 @@ function resetAll(){
   }
 }
 
-/* ========= 開始 ========= */
+/* ===== 開始 ===== */
 loadGame();
-startRound();
+startLevel();
 </script>
 
 </body>
