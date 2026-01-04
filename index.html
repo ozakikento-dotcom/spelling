@@ -6,148 +6,142 @@
 
 <style>
 body{
-  font-family: Arial, sans-serif;
-  background:#e6f7ff;
+  font-family:"Arial Rounded MT Bold",Arial,sans-serif;
+  background:linear-gradient(#dff3ff,#ffffff);
   text-align:center;
   margin:0;
-  padding:10px;
+  padding:12px;
 }
-h1{color:#2b6cb0;}
-.level{font-size:22px;margin:5px;}
-.dragon{font-size:80px;}
 
+h1{
+  font-size:42px;
+  color:#2b6cb0;
+  margin:10px 0;
+}
+
+.level{font-size:30px;}
+.dragon{font-size:100px;margin:10px 0;}
+
+/* 進捗バー */
+.hp-bar{
+  width:340px;height:28px;
+  background:#ddd;border-radius:20px;
+  margin:12px auto;overflow:hidden;
+}
+#hpFill{
+  height:100%;width:0%;
+  background:linear-gradient(to right,#4caf50,#8bc34a);
+  transition:.3s;
+}
+
+/* メインボタン */
 .listen-btn{
-  font-size:34px;
-  padding:22px 45px;
-  margin:10px;
-  border-radius:25px;
+  font-size:42px;
+  padding:28px 64px;
+  margin:12px;
+  border-radius:32px;
   background:#ff9800;
-  color:white;
-  border:none;
+  color:white;border:none;
 }
 .listen-btn:active{background:#f57c00;}
 
 .hint-btn{
-  font-size:28px;
-  padding:18px 30px;
-  margin:10px;
-  border-radius:22px;
+  font-size:36px;
+  padding:24px 56px;
+  margin:12px;
+  border-radius:30px;
   background:#9c27b0;
-  color:white;
-  border:none;
+  color:white;border:none;
 }
 .hint-btn:active{background:#7b1fa2;}
 
-.hp-bar{
-  width:260px;height:20px;
-  background:#ddd;border-radius:10px;
-  margin:8px auto;overflow:hidden;
-}
-#hpFill{
-  height:100%;
-  background:linear-gradient(to right,#4caf50,#8bc34a);
-  width:0%;transition:.3s;
-}
-
 #hint{
-  font-size:34px;
-  height:40px;
+  font-size:44px;
+  height:50px;
   color:#444;
 }
 
 .progress{
-  font-size:30px;
-  color:green;
-  min-height:36px;
+  font-size:42px;
+  color:#2e7d32;
+  min-height:48px;
 }
 
+/* アルファベット */
 .buttons button{
-  font-size:40px;
-  width:95px;
-  height:95px;
-  margin:8px;
-  border-radius:22px;
+  font-size:52px;
+  width:120px;height:120px;
+  margin:10px;
+  border-radius:30px;
   border:none;
   background:#4cafef;
   color:white;
+  box-shadow:0 5px 0 #2196f3;
 }
-.buttons button:active{background:#2196f3;}
+.buttons button:active{
+  transform:translateY(5px);
+  box-shadow:none;
+}
 
+/* ステッカー */
 #stickerArea{
-  display:flex;
-  flex-wrap:wrap;
+  display:flex;flex-wrap:wrap;
   justify-content:center;
-  gap:8px;
-  margin-top:10px;
+  gap:14px;margin-top:14px;
 }
 #stickerArea img{
-  width:60px;
-  border-radius:8px;
-  box-shadow:0 2px 4px rgba(0,0,0,.2);
+  width:100px;border-radius:16px;
+  box-shadow:0 4px 8px rgba(0,0,0,.25);
 }
 
 /* 拡大 */
 #modal{
-  display:none;
-  position:fixed;
-  inset:0;
+  display:none;position:fixed;inset:0;
   background:rgba(0,0,0,.7);
-  justify-content:center;
-  align-items:center;
+  justify-content:center;align-items:center;
   z-index:2000;
 }
 #modal img{
-  width:300px;
+  width:380px;
   background:white;
-  border-radius:20px;
-  padding:10px;
+  border-radius:26px;
+  padding:14px;
 }
 
-/* レベルアップ演出 */
+/* レベルアップ */
 #levelUpEffect{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(255,255,255,0.9);
+  display:none;position:fixed;inset:0;
+  background:rgba(255,255,255,.92);
   z-index:5000;
-  justify-content:center;
-  align-items:center;
+  justify-content:center;align-items:center;
   flex-direction:column;
 }
 .level-text{
-  font-size:48px;
+  font-size:60px;
   color:#ff9800;
   font-weight:bold;
-  animation:pop .6s ease-out;
-}
-@keyframes pop{
-  0%{transform:scale(.5);opacity:0;}
-  100%{transform:scale(1);opacity:1;}
 }
 .sparkles{
-  font-size:36px;
-  animation:sparkle 1.2s linear infinite;
-}
-@keyframes sparkle{
-  0%{opacity:0;transform:translateY(10px);}
-  50%{opacity:1;}
-  100%{opacity:0;transform:translateY(-20px);}
+  font-size:48px;
+  margin-top:12px;
 }
 
-/* 親画面 */
-#parentPanel{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#fff;
-  z-index:4000;
-  padding:20px;
-  text-align:left;
+/* リセット */
+#resetArea{
+  margin-top:30px;
+  padding-bottom:20px;
 }
-#parentTrigger{
-  position:fixed;
-  bottom:0;left:0;
-  width:100%;height:40px;
+#resetBtn{
+  font-size:20px;
+  padding:14px 30px;
+  border-radius:18px;
+  background:#dddddd;
+  color:#333;border:none;
+}
+#resetHint{
+  font-size:14px;
+  color:#666;
+  margin-top:6px;
 }
 </style>
 </head>
@@ -167,31 +161,44 @@ h1{color:#2b6cb0;}
 <div class="progress" id="progress"></div>
 <div class="buttons" id="buttons"></div>
 
-<h3>🎁 ステッカー</h3>
+<h2>🎁 ステッカー</h2>
 <div id="stickerArea"></div>
 
-<!-- 拡大 -->
+<!-- ステッカー拡大 -->
 <div id="modal" onclick="closeModal()">
   <img id="modalImg">
 </div>
 
-<!-- レベルアップ -->
+<!-- レベルアップ演出 -->
 <div id="levelUpEffect">
   <div class="level-text">LEVEL UP!! ⭐</div>
   <div class="sparkles">✨ ⭐ ✨ ⭐ ✨</div>
 </div>
 
-<!-- 親 -->
-<div id="parentTrigger"></div>
-<div id="parentPanel">
-  <h2>🔧 保護者用</h2>
-  <p>レベル：<b id="pLevel"></b></p>
-  <p>プレイ回数：<b id="pTotal"></b></p>
-  <button onclick="resetAll()">リセット</button>
-  <button onclick="closeParent()">とじる</button>
+<!-- 3秒長押しリセット -->
+<div id="resetArea">
+  <button id="resetBtn"
+    ontouchstart="startReset()"
+    ontouchend="cancelReset()"
+    onmousedown="startReset()"
+    onmouseup="cancelReset()"
+    onmouseleave="cancelReset()">
+    🔄 さいしょから
+  </button>
+  <div id="resetHint">※3びょう ながおし</div>
 </div>
 
 <script>
+/* ===== 効果音 ===== */
+const hitSound  = new Audio("hit.mp3");
+const missSound = new Audio("miss.mp3");
+const deadSound = new Audio("dead.mp3");
+
+/* ===== 音声初期化（iPad対策） ===== */
+window.speechSynthesis.onvoiceschanged = () => {
+  speechSynthesis.getVoices();
+};
+
 /* ===== 単語 ===== */
 let words=[
  "the","said","come","love","find","go","here","there","why",
@@ -199,16 +206,28 @@ let words=[
  "could","would","should","who","every"
 ].map(w=>w.toUpperCase());
 
-let level=1,totalCount=0;
+let level=1;
 let levelWords=[],qIndex=0;
 let currentWord="",charIndex=0;
 let stickers=[];
 
-/* ===== 音 ===== */
+/* ===== 英国発音優先 ===== */
 function speakWord(){
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(currentWord);
-  u.lang="en-US";u.rate=0.9;
+  u.rate=0.9;
+
+  const voices=speechSynthesis.getVoices();
+  let voice=
+    voices.find(v=>v.lang==="en-GB") ||
+    voices.find(v=>v.lang.startsWith("en-GB")) ||
+    voices.find(v=>v.lang==="en-US") ||
+    voices.find(v=>v.lang.startsWith("en-US")) ||
+    voices.find(v=>v.lang.startsWith("en"));
+
+  if(voice){u.voice=voice;u.lang=voice.lang;}
+  else{u.lang="en-GB";}
+
   speechSynthesis.speak(u);
 }
 
@@ -219,14 +238,13 @@ function showHint(){
   setTimeout(()=>h.textContent="",1000);
 }
 
-/* ===== レベル開始 ===== */
+/* ===== レベル処理 ===== */
 function startLevel(){
   levelWords=[...words].sort(()=>Math.random()-0.5).slice(0,10);
   qIndex=0;
   startQuestion();
 }
 
-/* ===== 1問 ===== */
 function startQuestion(){
   currentWord=levelWords[qIndex];
   charIndex=0;
@@ -236,7 +254,7 @@ function startQuestion(){
   setTimeout(speakWord,500);
 }
 
-/* ===== ボタン ===== */
+/* ===== ボタン生成 ===== */
 function createButtons(){
   const area=document.getElementById("buttons");
   area.innerHTML="";
@@ -254,20 +272,27 @@ function createButtons(){
   });
 }
 
+/* ===== 判定 ===== */
 function tapLetter(l){
   if(l===currentWord[charIndex]){
+    hitSound.currentTime=0;hitSound.play();
     charIndex++;
     document.getElementById("progress").textContent=
       currentWord.slice(0,charIndex);
+
     if(charIndex===currentWord.length){
-      totalCount++;
       qIndex++;
       updateProgress();
-      if(qIndex>=10) levelUp();
-      else startQuestion();
+      if(qIndex>=10){
+        deadSound.currentTime=0;deadSound.play();
+        levelUp();
+      }else{
+        startQuestion();
+      }
     }
+  }else{
+    missSound.currentTime=0;missSound.play();
   }
-  saveGame();
 }
 
 /* ===== 進捗 ===== */
@@ -276,25 +301,11 @@ function updateProgress(){
 }
 
 /* ===== レベルアップ ===== */
-function playLevelUpSound(){
-  const ctx=new (window.AudioContext||window.webkitAudioContext)();
-  const o=ctx.createOscillator();
-  const g=ctx.createGain();
-  o.frequency.setValueAtTime(880,ctx.currentTime);
-  o.frequency.exponentialRampToValueAtTime(1320,ctx.currentTime+.3);
-  g.gain.setValueAtTime(.3,ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.6);
-  o.connect(g);g.connect(ctx.destination);
-  o.start();o.stop(ctx.currentTime+.6);
-}
-
 function showLevelUpEffect(){
   const e=document.getElementById("levelUpEffect");
   e.style.display="flex";
-  playLevelUpSound();
   setTimeout(()=>e.style.display="none",1500);
 }
-
 function levelUp(){
   level++;
   document.getElementById("level").textContent=level;
@@ -310,7 +321,6 @@ function addSticker(n){
   img.src=`volst (${n}).png`;
   img.onclick=()=>openModal(img.src);
   document.getElementById("stickerArea").appendChild(img);
-  saveGame();
 }
 function openModal(src){
   document.getElementById("modalImg").src=src;
@@ -320,50 +330,23 @@ function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
-/* ===== 保存 ===== */
-function saveGame(){
-  localStorage.setItem("saveData",JSON.stringify({
-    level,totalCount,stickers
-  }));
+/* ===== 3秒長押しリセット ===== */
+let resetTimer=null;
+function startReset(){
+  resetTimer=setTimeout(resetAll,3000);
 }
-function loadGame(){
-  const d=JSON.parse(localStorage.getItem("saveData"));
-  if(!d) return;
-  level=d.level||1;
-  totalCount=d.totalCount||0;
-  stickers=d.stickers||[];
-  document.getElementById("level").textContent=level;
-  stickers.forEach(n=>{
-    const img=document.createElement("img");
-    img.src=`volst (${n}).png`;
-    img.onclick=()=>openModal(img.src);
-    document.getElementById("stickerArea").appendChild(img);
-  });
-}
-
-/* ===== 親 ===== */
-let timer;
-document.getElementById("parentTrigger").ontouchstart=()=>{
-  timer=setTimeout(openParent,5000);
-};
-document.getElementById("parentTrigger").ontouchend=()=>clearTimeout(timer);
-function openParent(){
-  document.getElementById("parentPanel").style.display="block";
-  document.getElementById("pLevel").textContent=level;
-  document.getElementById("pTotal").textContent=totalCount;
-}
-function closeParent(){
-  document.getElementById("parentPanel").style.display="none";
+function cancelReset(){
+  if(resetTimer){clearTimeout(resetTimer);resetTimer=null;}
 }
 function resetAll(){
-  if(confirm("リセットしますか？")){
+  cancelReset();
+  if(confirm("さいしょから やりなおしますか？")){
     localStorage.clear();
     location.reload();
   }
 }
 
 /* ===== 開始 ===== */
-loadGame();
 startLevel();
 </script>
 
