@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Spelling Dragon Battle</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #e6f7ff;
+  text-align: center;
+  margin: 0;
+  padding: 15px;
+}
+h1 { color: #2b6cb0; }
+
+.dragon { font-size: 80px; }
+.level { font-size: 20px; margin: 5px; }
+
+.hp-bar {
+  width: 220px;
+  height: 18px;
+  background: #ddd;
+  border-radius: 10px;
+  margin: 5px auto;
+  overflow: hidden;
+}
+#hpFill {
+  height: 100%;
+  background: linear-gradient(to right, red, orange);
+  width: 100%;
+  transition: width 0.3s;
+}
+
+.progress {
+  font-size: 28px;
+  min-height: 36px;
+  color: green;
+}
+
+.buttons button {
+  font-size: 26px;
+  width: 70px;
+  height: 70px;
+  margin: 6px;
+  border-radius: 14px;
+  border: none;
+  background: #63b3ed;
+  color: white;
+}
+.buttons button:active { background: #4299e1; }
+
+.status { height: 28px; font-size: 20px; }
+
+#stickerArea {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+#stickerArea img {
+  width: 60px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.2);
+}
+
+/* モーダル */
+#modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+#modal img {
+  width: 300px;
+  background: white;
+  border-radius: 20px;
+  padding: 10px;
+}
+
+/* コンプリート */
+#complete {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, gold, orange);
+  color: white;
+  z-index: 3000;
+  padding-top: 120px;
+  font-size: 30px;
+}
+
+/* 親画面 */
+#parentPanel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 4000;
+  padding: 20px;
+  overflow-y: auto;
+  text-align: left;
+}
+.good { color: green; }
+.bad { color: red; }
+
+#parentTrigger {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🐉 スペリング ドラゴンバトル</h1>
+
+<div class="level">LEVEL <span id="level">1</span></div>
+<div class="dragon">🐲</div>
+
+<div class="hp-bar"><div id="hpFill"></div></div>
+
+<button onclick="speakWord()">🔊 きく</button>
+
+<div class="progress" id="progress"></div>
+<div class="buttons" id="buttons"></div>
+<div class="status" id="status"></div>
+
+<h3>🎁 あつめたステッカー</h3>
+<div id="stickerArea"></div>
+
+<!-- モーダル -->
+<div id="modal" onclick="closeModal()">
+  <img id="modalImg">
+</div>
+
+<!-- コンプリート -->
+<div id="complete">
+  <h1>🎉 コンプリート！</h1>
+  <p>50まい あつめたよ！！</p>
+</div>
+
+<!-- 親トリガー -->
+<div id="parentTrigger"></div>
+
+<!-- 親画面 -->
+<div id="parentPanel">
+  <h2>🔧 保護者用</h2>
+  <p>レベル：<b id="pLevel"></b></p>
+  <p>プレイ回数：<b id="pTotal"></b></p>
+
+  <h3>📊 得意・不得意</h3>
+  <div id="statsArea"></div>
+
+  <button onclick="resetAll()">データリセット</button>
+  <button onclick="closeParent()">とじる</button>
+</div>
+
+<script>
+/* ===== 単語 ===== */
+let words = [
+  "the","said","come","love","find","go","here","there","why",
+  "children","climb","busy","people","beautiful","after",
+  "could","would","should","who","every"
+].map(w => ({ text: w.toUpperCase(), score: 0, lastSeen: 0 }));
+
+let level = 1;
+let dragonHP = 3;
+let maxHP = 3;
+let currentWord;
+let index = 0;
+let turn = 0;
+let stickers = [];
+let totalCount = 0;
+
+/* ===== 音声 ===== */
+function speakWord() {
+  const u = new SpeechSynthesisUtterance(currentWord.text);
+  u.lang = "en-US";
+  u.rate = 0.9;
+  speechSynthesis.speak(u);
+}
+
+/* ===== 出題 ===== */
+function pickWord() {
+  turn++;
+  const pool = [];
+  words.forEach(w => {
+    const weight = Math.max(1, 5 - w.score);
+    if (turn - w.lastSeen > 2) {
+      for (let i=0;i<weight;i++) pool.push(w);
+    }
+  });
+  const w = pool[Math.floor(Math.random()*pool.length)];
+  w.lastSeen = turn;
+  return w;
+}
+
+function startRound() {
+  currentWord = pickWord();
+  index = 0;
+  maxHP = 3 + level;
+  dragonHP = maxHP;
+  updateHP();
+
+  document.getElementById("progress").textContent = "";
+  document.getElementById("status").textContent = "";
+
+  createButtons();
+  setTimeout(speakWord, 500);
+}
+
+function createButtons() {
+  const area = document.getElementById("buttons");
+  area.innerHTML = "";
+  let letters = currentWord.text.split("");
+  while (letters.length < 8) {
+    let c = String.fromCharCode(65 + Math.floor(Math.random()*26));
+    if (!letters.includes(c)) letters.push(c);
+  }
+  letters.sort(()=>Math.random()-0.5);
+  letters.forEach(l=>{
+    const b=document.createElement("button");
+    b.textContent=l;
+    b.onclick=()=>tapLetter(l);
+    area.appendChild(b);
+  });
+}
+
+function tapLetter(l) {
+  if (l === currentWord.text[index]) {
+    index++;
+    document.getElementById("progress").textContent =
+      currentWord.text.slice(0,index);
+    if (index === currentWord.text.length) {
+      totalCount++;
+      currentWord.score = Math.min(3, currentWord.score+1);
+      dragonHP--;
+      updateHP();
+      index=0;
+      document.getElementById("progress").textContent="";
+      if (dragonHP<=0) levelUp();
+    }
+  } else {
+    currentWord.score = Math.max(0, currentWord.score-1);
+    document.getElementById("status").textContent="😵 ちがうよ";
+  }
+  saveGame();
+}
+
+/* ===== HP ===== */
+function updateHP() {
+  document.getElementById("hpFill").style.width =
+    (dragonHP/maxHP*100)+"%";
+}
+
+/* ===== レベルアップ ===== */
+function levelUp() {
+  level++;
+  document.getElementById("level").textContent=level;
+  const n=Math.floor(Math.random()*50)+1;
+  addSticker(n);
+  setTimeout(startRound,1500);
+}
+
+/* ===== ステッカー ===== */
+function addSticker(n){
+  stickers.push(n);
+  const img=document.createElement("img");
+  img.src=`stickers/volst (${n}).png`;
+  img.onclick=()=>openModal(img.src);
+  document.getElementById("stickerArea").appendChild(img);
+  if(stickers.length>=50){
+    document.getElementById("complete").style.display="block";
+  }
+  saveGame();
+}
+
+function openModal(src){
+  document.getElementById("modalImg").src=src;
+  document.getElementById("modal").style.display="flex";
+}
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
+
+/* ===== 保存 ===== */
+function saveGame(){
+  localStorage.setItem("saveData",JSON.stringify({
+    level,words,stickers,totalCount
+  }));
+}
+function loadGame(){
+  const d=JSON.parse(localStorage.getItem("saveData"));
+  if(!d) return;
+  level=d.level;
+  words=d.words;
+  stickers=d.stickers;
+  totalCount=d.totalCount;
+  document.getElementById("level").textContent=level;
+  stickers.forEach(n=>addSticker(n));
+}
+
+/* ===== 親画面 ===== */
+let timer;
+document.getElementById("parentTrigger").ontouchstart=()=>{
+  timer=setTimeout(openParent,5000);
+};
+document.getElementById("parentTrigger").ontouchend=()=>{
+  clearTimeout(timer);
+};
+
+function openParent(){
+  document.getElementById("parentPanel").style.display="block";
+  document.getElementById("pLevel").textContent=level;
+  document.getElementById("pTotal").textContent=totalCount;
+  renderStats();
+}
+function closeParent(){
+  document.getElementById("parentPanel").style.display="none";
+}
+function renderStats(){
+  const s=[...words].sort((a,b)=>a.score-b.score);
+  let html="<b>にがて：</b><br>";
+  s.slice(0,5).forEach(w=>html+=`<span class="bad">${w.text}</span> `);
+  html+="<br><br><b>とくい：</b><br>";
+  s.slice(-5).forEach(w=>html+=`<span class="good">${w.text}</span> `);
+  document.getElementById("statsArea").innerHTML=html;
+}
+function resetAll(){
+  if(confirm("リセットしますか？")){
+    localStorage.clear();
+    location.reload();
+  }
+}
+
+/* ===== 開始 ===== */
+loadGame();
+startRound();
+</script>
+
+</body>
+</html>
